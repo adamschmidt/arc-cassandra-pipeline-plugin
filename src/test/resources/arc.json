@@ -1,0 +1,30 @@
+{
+  "stages": [
+    {
+      "type": "DelimitedExtract",
+      "name": "load dog extract",
+      "environments": [
+        "production",
+        "test"
+      ],
+      "inputURI": "${PWD}/input_data/customer/*.csv",
+      "outputView": "dogs"
+    },
+    {
+      "type": "CassandraLoad",
+      "name": "Load data into cassandra database",
+      "environments": [
+        "production",
+        "test"
+      ],
+      "inputView": "dogs",
+      "keyspace": "test",
+      "table": "dogs",
+      "params": {
+        "spark.cassandra.connection.host": "localhost",
+        "spark.cassandra.connection.port": "9042",
+        "spark.cassandra.connection.local_dc": "datacenter1"
+      }
+    }
+  ]
+}

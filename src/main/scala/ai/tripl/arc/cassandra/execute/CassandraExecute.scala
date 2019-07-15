@@ -102,10 +102,19 @@ object CassandraExecuteStage extends Logging {
     val sql = SQLUtils.injectParameters(stage.sql, stage.sqlParams, false)
     stage.stageDetail.put("sql", sql)
 
+    val credentials =
+      for (username <- stage.params.get("spark.cassandra.auth.username");
+           password <- stage.params.get("spark.cassandra.auth.password")) yield (username, password)
+
+    val authConf = credentials match {
+      case Some((user, password)) => PasswordAuthConf(user, password)
+      case None => NoAuthConf
+    }
+
     // get connection and try to execute statement
     try {
 
-      val connection = CassandraConnector(hosts, port=port, localDC=localDC)
+      val connection = CassandraConnector(hosts, port=port, localDC=localDC, authConf=authConf)
       connection.withSessionDo(session => session.execute(sql))
 
     } catch {
