@@ -29,7 +29,7 @@ class CassandraExtractSuite extends FunSuite with BeforeAndAfter {
   val outputView = "actual"
   val keyspace = "test"
   val table = "dogs"
-  val cassandraHost = "cassandra"
+  val cassandraHost = "localhost"
   val port = "9042"
   val localDc = "datacenter1"
   val ssl = "false"

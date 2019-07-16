@@ -14,6 +14,7 @@ import scala.collection.JavaConverters._
 
 
 class CassandraLoad extends PipelineStagePlugin {
+  
   val version = ai.tripl.arc.cassandra.BuildInfo.version
 
   override def instantiate(index: Int, config: Config)(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: API.ARCContext): Either[List[Error.StageError], API.PipelineStage] = {

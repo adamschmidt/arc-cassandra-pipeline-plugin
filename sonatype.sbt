@@ -11,13 +11,14 @@ import xerial.sbt.Sonatype._
 homepage := Some(url("https://arc.tripl.ai"))
 scmInfo := Some(
   ScmInfo(
-    url("https://github.com/tripl-ai/arc"),
-    "scm:git@github.com:tripl-ai/arc.git"
+    url("https://github.com/tripl-ai/arc-cassandra-pipeline-plugin"),
+    "scm:git@github.com:tripl-ai/arc-cassandra-pipeline-plugin.git"
   )
 )
 developers := List(
   Developer(id="jbruce", name="John Bruce", email="john@tripl.ai", url=url("https://github.com/jbruce")),
-  Developer(id="seddonm1", name="Mike Seddon", email="mike@tripl.ai", url=url("https://github.com/seddonm1"))
+  Developer(id="seddonm1", name="Mike Seddon", email="mike@tripl.ai", url=url("https://github.com/seddonm1")),
+  Developer(id="adamschmidt", name="Adam Schmidt", email="aschmidt1978@gmail.com", url=url("https://github.com/adamschmidt"))
 )
 
 credentials += Credentials("Sonatype Nexus Repository Manager",

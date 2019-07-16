@@ -21,9 +21,11 @@ services:
     working_dir: /app
 
   cassandra:
-    image: cassandra:3
+    image: cassandra:it
     ports:
       - 9042:9042
       - 9160:9160
     networks:
       - arc-integration
+    build: cassandra/.
+
