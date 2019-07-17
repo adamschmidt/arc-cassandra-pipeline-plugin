@@ -20,17 +20,17 @@ import ai.tripl.arc.util.log.LoggerFactory
 import org.apache.log4j.{Level, Logger}
 
 case class KnownData(
-                      booleanDatum: Boolean,
-                      dateDatum: Date,
-                      decimalDatum: Decimal,
-                      doubleDatum: Double,
-                      integerDatum: Integer,
-                      longDatum: Long,
-                      stringDatum: String,
-                      timeDatum: String,
-                      timestampDatum: Timestamp,
-                      nullDatum: Null
-                    )
+  booleanDatum: Boolean,
+  dateDatum: Date,
+  decimalDatum: Decimal,
+  doubleDatum: Double,
+  integerDatum: Integer,
+  longDatum: Long,
+  stringDatum: String,
+  timeDatum: String,
+  timestampDatum: Timestamp,
+  nullDatum: Null
+)
 
 object TestUtils {
   def getLogger()(implicit spark: SparkSession): ai.tripl.arc.util.log.logger.Logger = {
