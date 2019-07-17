@@ -20,7 +20,7 @@ class CassandraExecuteSuite extends FunSuite with BeforeAndAfter {
 
   val outputView = "dataset"
   var testURI = FileUtils.getTempDirectoryPath()
-  var cassandraHost = "localhost"
+  var cassandraHost = "cassandra"
 
   before {
     implicit val spark = SparkSession
