@@ -66,25 +66,25 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
     val conf = s"""{
       "stages": [
         {
-          "type": "ai.tripl.arc.execute.CassandraExecute",
+          "type": "CassandraExecute",
           "name": "create table",
-          "inputURI": "${getClass.getResource("/create_keyspace.cql").toString}",
           "environments": [
             "production",
             "test"
-          ],
+          ],          
+          "inputURI": "${getClass.getResource("/create_keyspace.cql").toString}",
           "params": {
             "spark.cassandra.connection.host": "cassandra"
           }                  
         },        
         {
-          "type": "ai.tripl.arc.execute.CassandraExecute",
+          "type": "CassandraExecute",
           "name": "create table",
-          "inputURI": "${getClass.getResource("/create_table.cql").toString}",
           "environments": [
             "production",
             "test"
-          ],
+          ],          
+          "inputURI": "${getClass.getResource("/create_table.cql").toString}",
           "params": {
             "spark.cassandra.connection.host": "cassandra"
           }                   
@@ -92,12 +92,12 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
         {
           "type": "CassandraLoad",
           "name": "write",
-          "table": "dogs",
-          "keyspace": "test",
           "environments": [
             "production",
             "test"
-          ],
+          ],          
+          "keyspace": "test",
+          "table": "dogs",
           "inputView": "${inputView}",
           "saveMode": "Overwrite",
           "params": {
@@ -108,8 +108,6 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
         {
           "type": "CassandraExtract",
           "name": "read",
-          "table": "dogs",
-          "keyspace": "test",
           "environments": [
             "production",
             "test"
