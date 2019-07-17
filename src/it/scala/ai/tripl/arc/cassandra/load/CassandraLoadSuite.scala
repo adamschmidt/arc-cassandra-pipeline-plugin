@@ -72,7 +72,10 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
           "environments": [
             "production",
             "test"
-          ]          
+          ],
+          "params": {
+            "spark.cassandra.connection.host": "cassandra"
+          }                  
         },        
         {
           "type": "ai.tripl.arc.execute.CassandraExecute",
@@ -81,7 +84,10 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
           "environments": [
             "production",
             "test"
-          ]          
+          ],
+          "params": {
+            "spark.cassandra.connection.host": "cassandra"
+          }                   
         },
         {
           "type": "CassandraLoad",
@@ -96,6 +102,7 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
           "saveMode": "Overwrite",
           "params": {
             "confirm.truncate": "true",
+            "spark.cassandra.connection.host": "cassandra"
           }
         },
         {
@@ -109,7 +116,10 @@ class CassandraLoadSuite extends FunSuite with BeforeAndAfter {
           ],
           "keyspace": "test",
           "table": "dogs",
-          "outputView": "${outputView}"
+          "outputView": "${outputView}",
+          "params": {
+            "spark.cassandra.connection.host": "cassandra"
+          }          
         }            
       ]
     }"""
