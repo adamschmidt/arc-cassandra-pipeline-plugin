@@ -16,7 +16,7 @@ object Dependencies {
   val sparkHive = "org.apache.spark" %% "spark-hive" % sparkVersion % "provided"
 
   // cassandra
-  val cassandra =  "datastax" % "spark-cassandra-connector" % "2.4.0-s_2.11" intransitive()
+  val cassandra = "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.1" intransitive()
   val jsr166e = "com.twitter" % "jsr166e" % "1.1.0" % "provided"
 
   // Project
