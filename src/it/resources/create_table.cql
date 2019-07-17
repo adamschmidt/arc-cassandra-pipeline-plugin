@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS test.dogs ( breed text, height_low_inches int, height_high_inches int, weight_low_lbs int, weight_high_lbs int, PRIMARY KEY(breed))

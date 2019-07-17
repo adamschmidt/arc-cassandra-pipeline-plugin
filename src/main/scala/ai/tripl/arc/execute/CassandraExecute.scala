@@ -1,4 +1,4 @@
-package ai.tripl.arc.cassandra.execute
+package ai.tripl.arc.execute
 
 import java.net.{InetAddress, URI}
 
@@ -61,14 +61,14 @@ class CassandraExecute extends PipelineStagePlugin {
 }
 
 case class CassandraExecuteStage(
-                             plugin: CassandraExecute,
-                             name: String,
-                             description: Option[String],
-                             inputURI: URI,
-                             sql: String,
-                             sqlParams: Map[String, String],
-                             params: Map[String, String]
-                           ) extends PipelineStage {
+    plugin: CassandraExecute,
+    name: String,
+    description: Option[String],
+    inputURI: URI,
+    sql: String,
+    sqlParams: Map[String, String],
+    params: Map[String, String]
+  ) extends PipelineStage {
 
   override def execute()(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: ARCContext): Option[DataFrame] = {
     CassandraExecuteStage.execute(this)

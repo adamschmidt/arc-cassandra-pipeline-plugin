@@ -50,14 +50,13 @@ class CassandraExecuteSuite extends FunSuite with BeforeAndAfter {
     implicit val logger = TestUtils.getLogger()
     implicit val arcContext = TestUtils.getARCContext(isStreaming=false)
 
-
     val transaction = s"""
     CREATE KEYSPACE IF NOT EXISTS test WITH replication={'class':'SimpleStrategy', 'replication_factor':1}
     """.stripMargin
 
-    ai.tripl.arc.cassandra.execute.CassandraExecuteStage.execute(
-      ai.tripl.arc.cassandra.execute.CassandraExecuteStage(
-        plugin=new ai.tripl.arc.cassandra.execute.CassandraExecute,
+    ai.tripl.arc.execute.CassandraExecuteStage.execute(
+      ai.tripl.arc.execute.CassandraExecuteStage(
+        plugin=new ai.tripl.arc.execute.CassandraExecute,
         name=outputView,
         description=None,
         inputURI=new URI(testURI),
@@ -80,9 +79,9 @@ class CassandraExecuteSuite extends FunSuite with BeforeAndAfter {
     """.stripMargin
 
     val thrown = intercept[Exception with DetailException] {
-      ai.tripl.arc.cassandra.execute.CassandraExecuteStage.execute(
-        ai.tripl.arc.cassandra.execute.CassandraExecuteStage(
-          plugin=new ai.tripl.arc.cassandra.execute.CassandraExecute,
+      ai.tripl.arc.execute.CassandraExecuteStage.execute(
+        ai.tripl.arc.execute.CassandraExecuteStage(
+          plugin=new ai.tripl.arc.execute.CassandraExecute,
           name=outputView,
           description=None,
           inputURI=new URI(testURI),

@@ -1,4 +1,4 @@
-package ai.tripl.arc.cassandra.extract
+package ai.tripl.arc.extract
 
 import ai.tripl.arc.api.API._
 import ai.tripl.arc.config.Error._
@@ -63,17 +63,17 @@ class CassandraExtract extends PipelineStagePlugin {
 }
 
 case class CassandraExtractStage(
-                                      plugin: CassandraExtract,
-                                      name: String,
-                                      description: Option[String],
-                                      table: String,
-                                      keyspace: String,
-                                      outputView: String,
-                                      params: Map[String, String],
-                                      persist: Boolean,
-                                      numPartitions: Option[Int],
-                                      partitionBy: List[String]
-                                    ) extends PipelineStage {
+    plugin: CassandraExtract,
+    name: String,
+    description: Option[String],
+    table: String,
+    keyspace: String,
+    outputView: String,
+    params: Map[String, String],
+    persist: Boolean,
+    numPartitions: Option[Int],
+    partitionBy: List[String]
+  ) extends PipelineStage {
 
   override def execute()(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: ARCContext): Option[DataFrame] = {
     CassandraExtractStage.execute(this)
