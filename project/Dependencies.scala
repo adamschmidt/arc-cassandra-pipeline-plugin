@@ -8,7 +8,7 @@ object Dependencies {
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.7" % "test,it"
 
   // arc
-  val arc = "ai.tripl" %% "arc" % "2.0.1" % "provided"
+  val arc = "ai.tripl" %% "arc" % "2.4.0" % "provided"
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1" intransitive()
 
   // spark
@@ -16,7 +16,7 @@ object Dependencies {
   val sparkHive = "org.apache.spark" %% "spark-hive" % sparkVersion % "provided"
 
   // cassandra
-  val cassandra = "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.1" intransitive()
+  val cassandra = "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.2" intransitive()
   val jsr166e = "com.twitter" % "jsr166e" % "1.1.0" % "provided"
 
   // Project
