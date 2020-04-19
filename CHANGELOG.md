@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0
+
+- update to Arc 2.10.0
+
 ## 1.2.0
 
 - update to Arc 2.8.0
