@@ -23,7 +23,8 @@ class CassandraExecute extends PipelineStagePlugin {
     import ai.tripl.arc.config.ConfigUtils._
     implicit val c = config
 
-    val expectedKeys = "type" :: "name" :: "description" :: "environments" :: "inputURI" :: "authentication" :: "params" :: "password" :: "sqlParams" :: "user" :: Nil
+    val expectedKeys = "type" :: "id" :: "name" :: "description" :: "environments" :: "inputURI" :: "authentication" :: "params" :: "password" :: "sqlParams" :: "user" :: Nil
+    val id = getOptionalValue[String]("id")
     val name = getValue[String]("name")
     val description = getOptionalValue[String]("description")
     val authentication = readAuthentication("authentication")
@@ -33,10 +34,11 @@ class CassandraExecute extends PipelineStagePlugin {
     val params = readMap("params", c)
     val invalidKeys = checkValidKeys(c)(expectedKeys)
 
-    (name, description, parsedURI, inputSQL, invalidKeys) match {
-      case (Right(name), Right(description), Right(parsedURI), Right(inputSQL), Right(invalidKeys)) =>
+    (id, name, description, parsedURI, inputSQL, invalidKeys) match {
+      case (Right(id), Right(name), Right(description), Right(parsedURI), Right(inputSQL), Right(invalidKeys)) =>
         val stage = CassandraExecuteStage(
           plugin=this,
+          id=id,
           name=name,
           description=description,
           inputURI=parsedURI,
@@ -52,7 +54,7 @@ class CassandraExecute extends PipelineStagePlugin {
 
         Right(stage)
       case _ =>
-        val allErrors: Errors = List(name, description, parsedURI, inputSQL, invalidKeys).collect{ case Left(errs) => errs }.flatten
+        val allErrors: Errors = List(id, name, description, parsedURI, inputSQL, invalidKeys).collect{ case Left(errs) => errs }.flatten
         val stageName = stringOrDefault(name, "unnamed stage")
         val err = StageError(index, stageName, c.origin.lineNumber, allErrors)
         Left(err :: Nil)
@@ -62,6 +64,7 @@ class CassandraExecute extends PipelineStagePlugin {
 
 case class CassandraExecuteStage(
     plugin: CassandraExecute,
+    id: Option[String],
     name: String,
     description: Option[String],
     inputURI: URI,

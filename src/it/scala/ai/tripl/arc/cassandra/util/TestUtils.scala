@@ -17,6 +17,8 @@ import ai.tripl.arc.api.API.ARCContext
 import ai.tripl.arc.plugins._
 import org.apache.spark.storage.StorageLevel
 import ai.tripl.arc.util.log.LoggerFactory
+import ai.tripl.arc.util.SerializableConfiguration
+
 import org.apache.log4j.{Level, Logger}
 
 case class KnownData(
@@ -41,25 +43,39 @@ object TestUtils {
     logger
   }
 
-  def getARCContext(isStreaming: Boolean, environment: String = "test", commandLineArguments: Map[String,String] = Map[String,String]()): ARCContext = {
+  def getARCContext(
+      isStreaming: Boolean = false,
+      ignoreEnvironments: Boolean = false,
+      immutableViews: Boolean = false,
+      environment: String = "test",
+      commandLineArguments: Map[String,String] = Map[String,String](),
+      ipynb: Boolean = true,
+      inlineSQL: Boolean = true,
+      inlineSchema: Boolean = true,
+      dropUnsupported: Boolean = false,
+  )(implicit spark: SparkSession): ARCContext = {
     val loader = ai.tripl.arc.util.Utils.getContextOrSparkClassLoader
 
     ARCContext(
       jobId=None,
       jobName=None,
       environment=Option(environment),
-      environmentId=None,
       configUri=None,
       isStreaming=isStreaming,
-      ignoreEnvironments=false,
+      ignoreEnvironments=ignoreEnvironments,
       commandLineArguments=commandLineArguments,
       storageLevel=StorageLevel.MEMORY_AND_DISK_SER,
-      immutableViews=false,
+      immutableViews=immutableViews,
+      ipynb=ipynb,
+      inlineSQL=inlineSQL,
+      inlineSchema=inlineSchema,
+      dropUnsupported=dropUnsupported,
       dynamicConfigurationPlugins=ServiceLoader.load(classOf[DynamicConfigurationPlugin], loader).iterator().asScala.toList,
       lifecyclePlugins=ServiceLoader.load(classOf[LifecyclePlugin], loader).iterator().asScala.toList,
       activeLifecyclePlugins=Nil,
       pipelineStagePlugins=ServiceLoader.load(classOf[PipelineStagePlugin], loader).iterator().asScala.toList,
       udfPlugins=ServiceLoader.load(classOf[UDFPlugin], loader).iterator().asScala.toList,
+      serializableConfiguration=new SerializableConfiguration(spark.sparkContext.hadoopConfiguration),
       userData=collection.mutable.Map.empty
     )
   }
