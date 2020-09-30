@@ -19,7 +19,8 @@ class CassandraExtract extends PipelineStagePlugin {
     import ai.tripl.arc.config.ConfigUtils._
     implicit val c = config
 
-    val expectedKeys = "type" :: "name" :: "description" :: "environments" :: "table"  :: "keyspace" :: "outputView"  :: "numPartitions" :: "partitionBy" :: "persist" :: "params" :: Nil
+    val expectedKeys = "type" :: "id" :: "name" :: "description" :: "environments" :: "table"  :: "keyspace" :: "outputView"  :: "numPartitions" :: "partitionBy" :: "persist" :: "params" :: Nil
+    val id = getOptionalValue[String]("id")
     val name = getValue[String]("name")
     val description = getOptionalValue[String]("description")
     val table = getValue[String]("table")
@@ -31,11 +32,12 @@ class CassandraExtract extends PipelineStagePlugin {
     val params = readMap("params", c)
     val invalidKeys = checkValidKeys(c)(expectedKeys)
 
-    (name, description, table, keyspace, outputView, persist, numPartitions, partitionBy, invalidKeys) match {
-      case (Right(name), Right(description), Right(table), Right(keyspace), Right(outputView), Right(persist), Right(numPartitions), Right(partitionBy), Right(invalidKeys)) =>
+    (id, name, description, table, keyspace, outputView, persist, numPartitions, partitionBy, invalidKeys) match {
+      case (Right(id), Right(name), Right(description), Right(table), Right(keyspace), Right(outputView), Right(persist), Right(numPartitions), Right(partitionBy), Right(invalidKeys)) =>
 
         val stage = CassandraExtractStage(
           plugin=this,
+          id=id,
           name=name,
           description=description,
           table=table,
@@ -54,7 +56,7 @@ class CassandraExtract extends PipelineStagePlugin {
 
         Right(stage)
       case _ =>
-        val allErrors: Errors = List(name, description, table, keyspace, outputView, persist, numPartitions, partitionBy, invalidKeys).collect{ case Left(errs) => errs }.flatten
+        val allErrors: Errors = List(id, name, description, table, keyspace, outputView, persist, numPartitions, partitionBy, invalidKeys).collect{ case Left(errs) => errs }.flatten
         val stageName = stringOrDefault(name, "unnamed stage")
         val err = StageError(index, stageName, c.origin.lineNumber, allErrors)
         Left(err :: Nil)
@@ -64,6 +66,7 @@ class CassandraExtract extends PipelineStagePlugin {
 
 case class CassandraExtractStage(
     plugin: CassandraExtract,
+    id: Option[String],
     name: String,
     description: Option[String],
     table: String,

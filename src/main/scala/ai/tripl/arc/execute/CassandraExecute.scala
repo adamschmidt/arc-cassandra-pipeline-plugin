@@ -23,7 +23,8 @@ class CassandraExecute extends PipelineStagePlugin {
     import ai.tripl.arc.config.ConfigUtils._
     implicit val c = config
 
-    val expectedKeys = "type" :: "name" :: "description" :: "environments" :: "inputURI" :: "authentication" :: "params" :: "password" :: "sqlParams" :: "user" :: Nil
+    val expectedKeys = "type" :: "id" :: "name" :: "description" :: "environments" :: "inputURI" :: "authentication" :: "params" :: "password" :: "sqlParams" :: "user" :: Nil
+    val id = getOptionalValue[String]("id")
     val name = getValue[String]("name")
     val description = getOptionalValue[String]("description")
     val authentication = readAuthentication("authentication")
@@ -33,10 +34,11 @@ class CassandraExecute extends PipelineStagePlugin {
     val params = readMap("params", c)
     val invalidKeys = checkValidKeys(c)(expectedKeys)
 
-    (name, description, parsedURI, inputSQL, invalidKeys) match {
-      case (Right(name), Right(description), Right(parsedURI), Right(inputSQL), Right(invalidKeys)) =>
+    (id, name, description, parsedURI, inputSQL, invalidKeys) match {
+      case (Right(id), Right(name), Right(description), Right(parsedURI), Right(inputSQL), Right(invalidKeys)) =>
         val stage = CassandraExecuteStage(
           plugin=this,
+          id=id,
           name=name,
           description=description,
           inputURI=parsedURI,
@@ -52,7 +54,7 @@ class CassandraExecute extends PipelineStagePlugin {
 
         Right(stage)
       case _ =>
-        val allErrors: Errors = List(name, description, parsedURI, inputSQL, invalidKeys).collect{ case Left(errs) => errs }.flatten
+        val allErrors: Errors = List(id, name, description, parsedURI, inputSQL, invalidKeys).collect{ case Left(errs) => errs }.flatten
         val stageName = stringOrDefault(name, "unnamed stage")
         val err = StageError(index, stageName, c.origin.lineNumber, allErrors)
         Left(err :: Nil)
@@ -62,6 +64,7 @@ class CassandraExecute extends PipelineStagePlugin {
 
 case class CassandraExecuteStage(
     plugin: CassandraExecute,
+    id: Option[String],
     name: String,
     description: Option[String],
     inputURI: URI,
@@ -75,46 +78,27 @@ case class CassandraExecuteStage(
   }
 }
 
-object CassandraExecuteStage extends Logging {
+object CassandraExecuteStage {
 
   private def resolveHost(hostName: String): Option[InetAddress] = {
     try Some(InetAddress.getByName(hostName))
     catch {
       case NonFatal(e) =>
-        logError(s"Unknown host '$hostName'", e)
         None
     }
   }
 
   def execute(stage: CassandraExecuteStage)(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: ARCContext): Option[DataFrame] = {
-
-    val hosts = for {
-      hostName <- stage
-        .params.getOrElse("spark.cassandra.connection.host", "localhost")
-        .split(",").toSet[String]
-      hostAddress <- resolveHost(hostName.trim)
-    } yield hostAddress
-
-    val port = stage.params.getOrElse("spark.cassandra.connection.port", "9042").toInt
-    val localDC = stage.params.get("spark.cassandra.connection.local_dc")
-
     // replace sql parameters
     val sql = SQLUtils.injectParameters(stage.sql, stage.sqlParams, false)
     stage.stageDetail.put("sql", sql)
 
-    val credentials =
-      for (username <- stage.params.get("spark.cassandra.auth.username");
-           password <- stage.params.get("spark.cassandra.auth.password")) yield (username, password)
-
-    val authConf = credentials match {
-      case Some((user, password)) => PasswordAuthConf(user, password)
-      case None => NoAuthConf
-    }
-
     // get connection and try to execute statement
     try {
-
-      val connection = CassandraConnector(hosts, port=port, localDC=localDC, authConf=authConf)
+      val sparkConf = spark.sparkContext.getConf
+      stage.params.foreach { case (key, value) => sparkConf.set(key, value) }
+      val cassandraConnectorConf = CassandraConnectorConf.fromSparkConf(sparkConf)
+      val connection = CassandraConnector(cassandraConnectorConf)
       connection.withSessionDo(session => session.execute(sql))
 
     } catch {

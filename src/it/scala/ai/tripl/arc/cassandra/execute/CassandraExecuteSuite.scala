@@ -57,6 +57,7 @@ class CassandraExecuteSuite extends FunSuite with BeforeAndAfter {
     ai.tripl.arc.execute.CassandraExecuteStage.execute(
       ai.tripl.arc.execute.CassandraExecuteStage(
         plugin=new ai.tripl.arc.execute.CassandraExecute,
+        id=None,
         name=outputView,
         description=None,
         inputURI=new URI(testURI),
@@ -82,6 +83,7 @@ class CassandraExecuteSuite extends FunSuite with BeforeAndAfter {
       ai.tripl.arc.execute.CassandraExecuteStage.execute(
         ai.tripl.arc.execute.CassandraExecuteStage(
           plugin=new ai.tripl.arc.execute.CassandraExecute,
+          id=None,
           name=outputView,
           description=None,
           inputURI=new URI(testURI),
