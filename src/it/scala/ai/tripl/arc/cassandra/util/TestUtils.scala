@@ -6,6 +6,8 @@ import java.sql.Timestamp
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.ServiceLoader
 
+import com.typesafe.config.ConfigFactory
+
 import scala.collection.JavaConverters._
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.core._
@@ -76,7 +78,8 @@ object TestUtils {
       pipelineStagePlugins=ServiceLoader.load(classOf[PipelineStagePlugin], loader).iterator().asScala.toList,
       udfPlugins=ServiceLoader.load(classOf[UDFPlugin], loader).iterator().asScala.toList,
       serializableConfiguration=new SerializableConfiguration(spark.sparkContext.hadoopConfiguration),
-      userData=collection.mutable.Map.empty
+      userData=collection.mutable.Map.empty,
+      resolutionConfig=ConfigFactory.load(),
     )
   }
 

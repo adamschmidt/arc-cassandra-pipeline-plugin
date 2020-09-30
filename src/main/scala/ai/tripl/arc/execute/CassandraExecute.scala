@@ -78,46 +78,27 @@ case class CassandraExecuteStage(
   }
 }
 
-object CassandraExecuteStage extends Logging {
+object CassandraExecuteStage {
 
   private def resolveHost(hostName: String): Option[InetAddress] = {
     try Some(InetAddress.getByName(hostName))
     catch {
       case NonFatal(e) =>
-        logError(s"Unknown host '$hostName'", e)
         None
     }
   }
 
   def execute(stage: CassandraExecuteStage)(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: ARCContext): Option[DataFrame] = {
-
-    val hosts = for {
-      hostName <- stage
-        .params.getOrElse("spark.cassandra.connection.host", "localhost")
-        .split(",").toSet[String]
-      hostAddress <- resolveHost(hostName.trim)
-    } yield hostAddress
-
-    val port = stage.params.getOrElse("spark.cassandra.connection.port", "9042").toInt
-    val localDC = stage.params.get("spark.cassandra.connection.local_dc")
-
     // replace sql parameters
     val sql = SQLUtils.injectParameters(stage.sql, stage.sqlParams, false)
     stage.stageDetail.put("sql", sql)
 
-    val credentials =
-      for (username <- stage.params.get("spark.cassandra.auth.username");
-           password <- stage.params.get("spark.cassandra.auth.password")) yield (username, password)
-
-    val authConf = credentials match {
-      case Some((user, password)) => PasswordAuthConf(user, password)
-      case None => NoAuthConf
-    }
-
     // get connection and try to execute statement
     try {
-
-      val connection = CassandraConnector(hosts, port=port, localDC=localDC, authConf=authConf)
+      val sparkConf = spark.sparkContext.getConf
+      stage.params.foreach { case (key, value) => sparkConf.set(key, value) }
+      val cassandraConnectorConf = CassandraConnectorConf.fromSparkConf(sparkConf)
+      val connection = CassandraConnector(cassandraConnectorConf)
       connection.withSessionDo(session => session.execute(sql))
 
     } catch {

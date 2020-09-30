@@ -2,21 +2,20 @@ import sbt._
 
 object Dependencies {
   // versions
-  lazy val sparkVersion = "2.4.5"
+  lazy val sparkVersion = "3.0.1"
 
   // testing
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.7" % "test,it"
 
   // arc
-  val arc = "ai.tripl" %% "arc" % "3.2.0" % "provided"
-  val typesafeConfig = "com.typesafe" % "config" % "1.3.1" intransitive()
+  val arc = "ai.tripl" %% "arc" % "3.4.0" % "provided"
 
   // spark
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion % "provided"
   val sparkHive = "org.apache.spark" %% "spark-hive" % sparkVersion % "provided"
 
   // cassandra
-  val cassandra = "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.3" intransitive()
+  val cassandra = "com.datastax.spark" %% "spark-cassandra-connector" % "3.0.0"
   val jsr166e = "com.twitter" % "jsr166e" % "1.1.0" % "provided"
 
   // Project
@@ -24,7 +23,6 @@ object Dependencies {
     scalaTest,
 
     arc,
-    typesafeConfig,
 
     sparkSql,
     sparkHive,
