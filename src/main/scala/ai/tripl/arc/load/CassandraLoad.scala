@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 
 
 class CassandraLoad extends PipelineStagePlugin {
-  
+
   val version = ai.tripl.arc.cassandra.BuildInfo.version
 
   override def instantiate(index: Int, config: Config)(implicit spark: SparkSession, logger: ai.tripl.arc.util.log.logger.Logger, arcContext: API.ARCContext): Either[List[Error.StageError], API.PipelineStage] = {
@@ -23,7 +23,8 @@ class CassandraLoad extends PipelineStagePlugin {
 
     implicit val c = config
 
-    val expectedKeys = "type" :: "name" :: "description" :: "environments" :: "inputView" :: "table"  :: "keyspace"  :: "numPartitions" :: "partitionBy" :: "saveMode" :: "params" :: Nil
+    val expectedKeys = "type" :: "id" :: "name" :: "description" :: "environments" :: "inputView" :: "table"  :: "keyspace"  :: "numPartitions" :: "partitionBy" :: "saveMode" :: "params" :: Nil
+    val id = getOptionalValue[String]("id")
     val name = getValue[String]("name")
     val description = getOptionalValue[String]("description")
     val inputView = getValue[String]("inputView")
@@ -35,11 +36,12 @@ class CassandraLoad extends PipelineStagePlugin {
     val params = readMap("params", c)
     val invalidKeys = checkValidKeys(c)(expectedKeys)
 
-    (name, description, inputView, table, keyspace, numPartitions, partitionBy, saveMode, invalidKeys) match {
-      case (Right(name), Right(description), Right(inputView), Right(table), Right(keyspace), Right(numPartitions), Right(partitionBy), Right(saveMode), Right(invalidKeys)) =>
+    (id, name, description, inputView, table, keyspace, numPartitions, partitionBy, saveMode, invalidKeys) match {
+      case (Right(id), Right(name), Right(description), Right(inputView), Right(table), Right(keyspace), Right(numPartitions), Right(partitionBy), Right(saveMode), Right(invalidKeys)) =>
 
         val stage = CassandraLoadStage(
           plugin=this,
+          id=id,
           name=name,
           description=description,
           inputView=inputView,
@@ -60,7 +62,7 @@ class CassandraLoad extends PipelineStagePlugin {
 
         Right(stage)
       case _ =>
-        val allErrors: Errors = List(name, description, inputView, table, keyspace, numPartitions, partitionBy, saveMode, invalidKeys).collect{ case Left(errs) => errs }.flatten
+        val allErrors: Errors = List(id, name, description, inputView, table, keyspace, numPartitions, partitionBy, saveMode, invalidKeys).collect{ case Left(errs) => errs }.flatten
         val stageName = stringOrDefault(name, "unnamed stage")
         val err = StageError(index, stageName, c.origin.lineNumber, allErrors)
         Left(err :: Nil)
@@ -70,6 +72,7 @@ class CassandraLoad extends PipelineStagePlugin {
 
 case class CassandraLoadStage(
     plugin: CassandraLoad,
+    id: Option[String],
     name: String,
     description: Option[String],
     inputView: String,
@@ -113,7 +116,7 @@ object CassandraLoadStage {
                   .options(stage.params)
                   .options(Map("table" -> stage.table, "keyspace" -> stage.keyspace))
                   .format("org.apache.spark.sql.cassandra")
-                  .save() 
+                  .save()
               }
               case None => {
                 nonNullDF.write
@@ -121,7 +124,7 @@ object CassandraLoadStage {
                   .options(stage.params)
                   .options(Map("table" -> stage.table, "keyspace" -> stage.keyspace))
                   .format("org.apache.spark.sql.cassandra")
-                  .save() 
+                  .save()
               }
             }
           }
@@ -135,16 +138,16 @@ object CassandraLoadStage {
                   .options(stage.params)
                   .options(Map("table" -> stage.table, "keyspace" -> stage.keyspace))
                   .format("org.apache.spark.sql.cassandra")
-                  .save() 
-              } 
+                  .save()
+              }
               case None => {
                 nonNullDF.repartition(partitionCols:_*).write
                   .mode(stage.saveMode)
                   .options(stage.params)
                   .options(Map("table" -> stage.table, "keyspace" -> stage.keyspace))
                   .format("org.apache.spark.sql.cassandra")
-                  .save() 
-              }                           
+                  .save()
+              }
             }
           }
         }
@@ -153,7 +156,7 @@ object CassandraLoadStage {
       case e: Exception => throw new Exception(e) with DetailException {
         override val detail = stage.stageDetail
       }
-    }    
+    }
 
     spark.sparkContext.removeSparkListener(listener)
 
