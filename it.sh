@@ -12,5 +12,5 @@ docker run \
 --net arc-integration \
 -v $(pwd):/app \
 -w /app \
-mozilla/sbt:8u212_1.2.8 \
+mozilla/sbt:8u232_1.3.13 \
 sbt "+it:test"
